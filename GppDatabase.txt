@@ -1,0 +1,54 @@
+create table Passenger(
+Id integer not null constraint PK_Passenger primary key,
+FirstName varchar(20) not null,
+LastName varchar(20) not null,
+DateOfBirth date not null
+);
+
+create table Ticket(
+Id integer not null constraint PK_Ticket primary key,
+Price float not null,
+TicketDate timestamp not null,
+PassengerId integer not null,
+RouteId integer not null,
+VehicleId integer not null,
+constraint FK_Passenger_PassengerId foreign key (PassengerId) references Passenger(Id),
+constraint FK_Route_RouteId foreign key (RouteId) references Route(Id),
+constraint FK_Vehicle_VehicleId foreign key (VehicleId) references Vehicle(Id)
+);
+
+create table Route(
+Id integer not null constraint PK_Route primary key,
+RouteName varchar(20) not null,
+NumberOfStops integer not null
+);
+
+create table Vehicle(
+Id integer not null constraint PK_Vehicle primary key,
+VehicleModel varchar(20) not null,
+Capacity integer not null
+);
+
+create table RouteVehicle(
+VehicleId integer not null,
+RouteId integer not null,
+constraint PK_RouteVehicle PRIMARY KEY (RouteId, VehicleId),
+constraint FK_RouteVehicle_Route_RouteId foreign key (RouteId) references Route(Id),
+constraint  FK_RouteVehicle_Vehicle_VehicleId foreign key (VehicleId) S references Vehicle(Id)
+);
+
+create table VehicleRegistration(
+Id integer not null constraint PK_VehicleRegistration primary key,
+VehicleId integer not null,
+StartDate date not null,
+EndDate date not null,
+constraint FK_VehicleRegistration_Vehicle_VehicleId foreign key (VehicleId) references Vehicle(Id),
+constraint Unique_VehicleId unique (VehicleId)
+);
+
+
+
+
+
+
+
