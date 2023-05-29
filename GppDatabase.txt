@@ -1,3 +1,5 @@
+create extension if not exists "uuid-ossp";
+
 create table Passenger(
 Id integer not null constraint PK_Passenger primary key,
 FirstName varchar(20) not null,
@@ -46,7 +48,10 @@ constraint FK_VehicleRegistration_Vehicle_VehicleId foreign key (VehicleId) refe
 constraint Unique_VehicleId unique (VehicleId)
 );
 
-
+alter table passenger
+drop column Id cascade;
+alter table passenger
+add column Id uuid DEFAULT uuid_generate_v4() constraint PK_Passenger primary key;
 
 
 
