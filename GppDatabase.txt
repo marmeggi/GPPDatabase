@@ -52,7 +52,7 @@ constraint Unique_VehicleId unique (VehicleId)
 insert into Passenger values (gen_random_uuid(),'Ivo','Perić', '2001-12-15');
 insert into Passenger values (gen_random_uuid(),'Jozo','Marić', '1992-06-13');
 
-
+select * from passenger;
 
 
 
