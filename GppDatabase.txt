@@ -11,18 +11,17 @@ create table Ticket(
 Id uuid not null constraint PK_Ticket primary key,
 Price float not null,
 TicketDate timestamp not null,
-PassengerId integer not null,
-RouteId integer not null,
-VehicleId integer not null,
+PassengerId uuid not null,
+RouteId uuid not null,
+VehicleId uuid not null,
 constraint FK_Passenger_PassengerId foreign key (PassengerId) references Passenger(Id),
-constraint FK_Route_RouteId foreign key (RouteId) references Route(Id),
-constraint FK_Vehicle_VehicleId foreign key (VehicleId) references Vehicle(Id)
 );
 
 create table Route(
 Id uuid not null constraint PK_Route primary key,
 RouteName varchar(20) not null,
-NumberOfStops integer not null
+NumberOfStops integer not null,
+constraint FK_Ticket_TicketId foreign key (TicketId) references Ticket(Id),
 );
 
 create table Vehicle(
