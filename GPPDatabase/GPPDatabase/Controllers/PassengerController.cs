@@ -14,16 +14,16 @@ namespace GPPDatabase.Controllers
 
     public class PassengerController : ApiController
     {
-        public static string ConnectionString = "Server=localhost;Port=5432;User Id=postgres;Password=bootcamp;Database=postgres;";
+        public static string connectionString = "Server=localhost;Port=5432;User Id=postgres;Password=bootcamp;Database=postgres;";
 
-        private Passenger GetById(Guid Id)
+        private Passenger GetById(Guid id)
         {
-            using (NpgsqlConnection conn = new NpgsqlConnection(ConnectionString))
+            using (NpgsqlConnection conn = new NpgsqlConnection(connectionString))
             {
                 conn.Open();
 
                 NpgsqlCommand cmd = new NpgsqlCommand("select * from Passenger where Id = @Id", conn);
-                cmd.Parameters.AddWithValue("Id", Id);
+                cmd.Parameters.AddWithValue("Id", id);
 
                 NpgsqlDataReader reader = cmd.ExecuteReader();
 
@@ -41,7 +41,7 @@ namespace GPPDatabase.Controllers
                         return passenger;
                     }
                 }
-                Console.WriteLine($"Passenger with Id {Id} not found.");
+                Console.WriteLine($"Passenger with Id {id} not found.");
                 return null;
             }
         }
@@ -50,10 +50,10 @@ namespace GPPDatabase.Controllers
         // GET: api/Passenger
         public HttpResponseMessage Get()
         {   
-            List<Passenger> ListOfPassengers = new List<Passenger>();
+            List<Passenger> listOfPassengers = new List<Passenger>();
             try
             { 
-                using (NpgsqlConnection conn = new NpgsqlConnection(ConnectionString))
+                using (NpgsqlConnection conn = new NpgsqlConnection(connectionString))
                 {
                     conn.Open();
 
@@ -70,10 +70,10 @@ namespace GPPDatabase.Controllers
                             DateOfBirth = reader.GetDateTime(3)
                         };
 
-                        ListOfPassengers.Add(passenger);
+                        listOfPassengers.Add(passenger);
                     }
                 }
-                return Request.CreateResponse(HttpStatusCode.OK, ListOfPassengers);
+                return Request.CreateResponse(HttpStatusCode.OK, listOfPassengers);
             }
             catch (Exception ex)
             {
@@ -82,11 +82,11 @@ namespace GPPDatabase.Controllers
         }
 
         // GET: api/Passenger/5
-        public  HttpResponseMessage Get(Guid Id)
+        public  HttpResponseMessage Get(Guid id)
         {
-                Passenger passenger = GetById(Id);
+                Passenger passenger = GetById(id);
                 if (passenger == null)
-                    return Request.CreateErrorResponse(HttpStatusCode.NotFound, $"Passenger with Id {Id} not found.");
+                    return Request.CreateErrorResponse(HttpStatusCode.NotFound, $"Passenger with Id {id} not found.");
                 return Request.CreateResponse(HttpStatusCode.OK, passenger);
         }
 
@@ -95,17 +95,18 @@ namespace GPPDatabase.Controllers
         {
             try
             { 
-                using (NpgsqlConnection conn = new NpgsqlConnection(ConnectionString))
+                using (NpgsqlConnection conn = new NpgsqlConnection(connectionString))
                 {
-                    conn.Open();
-
+     
                     NpgsqlCommand cmd = new NpgsqlCommand("insert into Passenger values(@Id,@FirstName,@LastName,@DateOfBirth);", conn);
 
-                    Guid Id = Guid.NewGuid();
-                    cmd.Parameters.AddWithValue("Id", Id);
+                    Guid id = Guid.NewGuid();
+                    cmd.Parameters.AddWithValue("Id", id);
                     cmd.Parameters.AddWithValue("FirstName", passenger.FirstName);
                     cmd.Parameters.AddWithValue("LastName", passenger.LastName);
                     cmd.Parameters.AddWithValue("DateOfBirth", passenger.DateOfBirth);
+
+                    conn.Open();
 
                     int numberOfAffectedRows = cmd.ExecuteNonQuery();
 
@@ -126,49 +127,57 @@ namespace GPPDatabase.Controllers
         }
 
         // PUT: api/Passenger/5
-        public HttpResponseMessage Put(Guid Id, [FromBody] Passenger newPassenger)
+        public HttpResponseMessage Put(Guid id, [FromBody] Passenger updatedPassenger)
         {
             try
             { 
-                Passenger oldPassenger = GetById(Id);
+                Passenger currentPassenger = GetById(id);
 
-                if (oldPassenger != null)
+                if (currentPassenger != null)
                 {
-                    using (NpgsqlConnection conn = new NpgsqlConnection(ConnectionString))
+                    using (NpgsqlConnection conn = new NpgsqlConnection(connectionString))
                     {
                         StringBuilder sb = new StringBuilder();
 
+                        NpgsqlCommand cmd = new NpgsqlCommand();
+
+                        cmd.Connection = conn;
+
                         sb.Append("update Passenger set ");
-                        if (newPassenger.FirstName != null & oldPassenger.FirstName != newPassenger.FirstName)
+                        if (updatedPassenger.FirstName != null & currentPassenger.FirstName != updatedPassenger.FirstName)
+                        { 
                             sb.Append("FirstName = @FirstName, ");
-                        if (newPassenger.LastName != null & oldPassenger.LastName != newPassenger.LastName)
+                            cmd.Parameters.AddWithValue("FirstName", updatedPassenger.FirstName);
+                        }
+                        if (updatedPassenger.LastName != null & currentPassenger.LastName != updatedPassenger.LastName)
+                        {
                             sb.Append("LastName = @LastName, ");
-                        if (newPassenger.DateOfBirth != null & oldPassenger.DateOfBirth != newPassenger.DateOfBirth)
+                            cmd.Parameters.AddWithValue("LastName", updatedPassenger.LastName);
+                        }
+                        if (updatedPassenger.DateOfBirth != null & currentPassenger.DateOfBirth != updatedPassenger.DateOfBirth)
+                        {
                             sb.Append("DateOfBirth = @DateOfBirth, ");
+                            cmd.Parameters.AddWithValue("DateOfBirth", updatedPassenger.DateOfBirth);
+                        }
+
                         sb.Remove(sb.Length - 2, 2);
+
                         sb.Append(" where Id = @Id");
+                        cmd.Parameters.AddWithValue("Id", id);
 
                         conn.Open();
-
-                        NpgsqlCommand cmd = new NpgsqlCommand(sb.ToString(), conn);
-
-                        cmd.Parameters.AddWithValue("Id", Id);
-                        if (newPassenger.FirstName != null)
-                            cmd.Parameters.AddWithValue("FirstName", newPassenger.FirstName);
-                        if (newPassenger.LastName != null)
-                            cmd.Parameters.AddWithValue("LastName", newPassenger.LastName);
-                        if (newPassenger.DateOfBirth.HasValue)
-                            cmd.Parameters.AddWithValue("DateOfBirth", newPassenger.DateOfBirth);
-
+                        
+                        cmd.CommandText= sb.ToString();
+                        
                         int numberOfAffectedRows = cmd.ExecuteNonQuery();
                         if (numberOfAffectedRows > 0)
                         {
-                            return Get(Id);
+                            return Get(id);
                         }
                         return Request.CreateResponse(HttpStatusCode.BadRequest);
                     }
                 }
-                return Request.CreateErrorResponse(HttpStatusCode.NotFound, $"Passenger with Id {Id} not found.");
+                return Request.CreateErrorResponse(HttpStatusCode.NotFound, $"Passenger with Id {id} not found.");
 
             }
             catch (Exception ex)
@@ -179,18 +188,21 @@ namespace GPPDatabase.Controllers
         }
 
         // DELETE: api/Passenger/5
-        public HttpResponseMessage Delete(Guid Id)
+        public HttpResponseMessage Delete(Guid id)
         {
-            Passenger passenger = GetById(Id);
+            Passenger passenger = GetById(id);
             if (passenger != null)
             {
                 try
                 {
-                    using (NpgsqlConnection conn = new NpgsqlConnection(ConnectionString))
+                    using (NpgsqlConnection conn = new NpgsqlConnection(connectionString))
                     {
-                        conn.Open();
+                       
                         NpgsqlCommand cmd = new NpgsqlCommand("delete from Passenger where Id = @Id", conn);
-                        cmd.Parameters.AddWithValue("Id", Id);
+                        cmd.Parameters.AddWithValue("Id", id);
+
+                        conn.Open();
+
                         int numberOfAffectedRows = cmd.ExecuteNonQuery();
                         if (numberOfAffectedRows > 0)
                         {
@@ -204,7 +216,7 @@ namespace GPPDatabase.Controllers
                     return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
                 }
             }
-            return Request.CreateResponse(HttpStatusCode.NotFound, $"Passenger with Id {Id} not found.");
+            return Request.CreateResponse(HttpStatusCode.NotFound, $"Passenger with Id {id} not found.");
         }
     }
 }
