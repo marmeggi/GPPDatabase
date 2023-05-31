@@ -9,23 +9,29 @@ DateOfBirth date not null
 
 create table Ticket(
 Id uuid not null constraint PK_Ticket primary key,
-Price float not null,
 TicketDate timestamp not null,
-PassengerId uuid not null,
 RouteId uuid not null,
-VehicleId uuid not null,
+PassengerId uuid not null,
 constraint FK_Passenger_PassengerId foreign key (PassengerId) references Passenger(Id),
+constraint FK_Route_RouteId foreign key (RouteId) references Route(Id)
 );
 
 create table Route(
 Id uuid not null constraint PK_Route primary key,
-RouteName varchar(20) not null,
-NumberOfStops integer not null,
-constraint FK_Ticket_TicketId foreign key (TicketId) references Ticket(Id),
+Price float not null,
+RouteName varchar(50) not null,
+NumberOfStops integer not null
 );
 
 create table Vehicle(
 Id uuid not null constraint PK_Vehicle primary key,
+VehicleModelId uuid not null,
+constraint FK_VehicleModel_VehicleModelId foreign key (VehicleModelId) references VehicleModel(Id)
+);
+
+create table VehicleModel(
+Id uuid not null constraint PK_VehicleModel primary key,
+Manufacturer varchar(20) not null,
 VehicleModel varchar(20) not null,
 Capacity integer not null
 );
@@ -47,12 +53,81 @@ constraint FK_VehicleRegistration_Vehicle_VehicleId foreign key (VehicleId) refe
 constraint Unique_VehicleId unique (VehicleId)
 );
 
+alter table Ticket
+add constraint FK_Ticket_Passenger foreign key(PassengerId) references Passenger (Id) on delete cascade;
 
 insert into Passenger values (gen_random_uuid(),'Ivo','Perić', '2001-12-15');
 insert into Passenger values (gen_random_uuid(),'Jozo','Marić', '1992-06-13');
+insert into Passenger values (gen_random_uuid(),'Marin','Jović', '2000-03-03');
+insert into Passenger values (gen_random_uuid(),'Ivana','Sarić', '1965-07-01');
+insert into Passenger values (gen_random_uuid(),'Darko','Marko', '1960-11-11');
 
-select * from passenger;
+select * from Passenger;
 
+
+insert into Ticket values (gen_random_uuid(),'2023-05-31 04:05:06','601f1297-f047-467f-a771-bc1a99ca8e4c','5be62abd-f2fc-4020-b4e3-9083f99f234d');
+insert into Ticket values (gen_random_uuid(),'2023-05-31 04:20:55','601f1297-f047-467f-a771-bc1a99ca8e4c','5be62abd-f2fc-4020-b4e3-9083f99f234d');
+insert into Ticket values (gen_random_uuid(),'2023-05-30 15:20:13','601f1297-f047-467f-a771-bc1a99ca8e4c','5be62abd-f2fc-4020-b4e3-9083f99f234d');
+insert into Ticket values (gen_random_uuid(),'2023-05-31 15:20:00','601f1297-f047-467f-a771-bc1a99ca8e4c','2d318dcd-2247-4bfd-aec9-03990d67336d');
+insert into Ticket values (gen_random_uuid(),'2023-05-30 15:25:13','601f1297-f047-467f-a771-bc1a99ca8e4c','2d318dcd-2247-4bfd-aec9-03990d67336d');
+insert into Ticket values (gen_random_uuid(),'2023-05-29 15:30:49','d8f4e16d-42d2-4d89-b0e7-67f269a06912','2d318dcd-2247-4bfd-aec9-03990d67336d');
+insert into Ticket values (gen_random_uuid(),'2023-05-31 15:20:00','d8f4e16d-42d2-4d89-b0e7-67f269a06912','b3bbb322-eac2-42f1-89ef-11f273cde856');
+insert into Ticket values (gen_random_uuid(),'2023-05-31 15:25:13','d8f4e16d-42d2-4d89-b0e7-67f269a06912','b3bbb322-eac2-42f1-89ef-11f273cde856');
+insert into Ticket values (gen_random_uuid(),'2023-05-31 15:30:49','d8f4e16d-42d2-4d89-b0e7-67f269a06912','b3bbb322-eac2-42f1-89ef-11f273cde856');
+
+
+select * from Ticket;
+
+insert into Route values (gen_random_uuid(),11,'Višnjevac - Zeleno Polje',20);
+insert into Route values (gen_random_uuid(),11,'Bikara - Trg Lj. Gaja - Ul. Hrvatske Republike',15);
+
+select * from Route;
+
+insert into VehicleModel values (gen_random_uuid(),'ČKD','T3RPV_O',60);
+insert into VehicleModel values (gen_random_uuid(),'Duwag','GT-6',65);
+
+select * from VehicleModel;
+
+insert into Vehicle values (gen_random_uuid(),'0ad90c8a-6090-4061-bbf8-4b74dd0e9c6b');
+insert into Vehicle values (gen_random_uuid(),'0ad90c8a-6090-4061-bbf8-4b74dd0e9c6b');
+insert into Vehicle values (gen_random_uuid(),'3008119f-3eee-428b-b374-b6f50c79d24f');
+insert into Vehicle values (gen_random_uuid(),'3008119f-3eee-428b-b374-b6f50c79d24f');
+
+select * from Vehicle;
+
+insert into RouteVehicle values ('2c33a583-7a5a-415c-948b-ae5fa80b494f','601f1297-f047-467f-a771-bc1a99ca8e4c');
+insert into RouteVehicle values ('0f0706f8-620c-4078-8c1a-4837d9769c3a','601f1297-f047-467f-a771-bc1a99ca8e4c');
+insert into RouteVehicle values ('c5c4dc61-3653-4f53-9a5f-3c39e3976aed','d8f4e16d-42d2-4d89-b0e7-67f269a06912');
+insert into RouteVehicle values ('827b2cc4-de3d-4d36-9ae5-298746aef847','d8f4e16d-42d2-4d89-b0e7-67f269a06912');
+
+select * from RouteVehicle;
+
+insert into VehicleRegistration values (gen_random_uuid(),'2c33a583-7a5a-415c-948b-ae5fa80b494f','2023-01-01','2024-01-01');
+insert into VehicleRegistration values (gen_random_uuid(),'0f0706f8-620c-4078-8c1a-4837d9769c3a','2023-05-01','2024-05-01');
+insert into VehicleRegistration values (gen_random_uuid(),'c5c4dc61-3653-4f53-9a5f-3c39e3976aed','2023-04-04','2024-04-04');
+insert into VehicleRegistration values (gen_random_uuid(),'827b2cc4-de3d-4d36-9ae5-298746aef847','2023-12-03','2024-12-03');
+
+select * from VehicleRegistration;
+
+
+select p.FirstName,p.LastName, r.RouteName  from Passenger p inner join Ticket t on p.Id = t.PassengerId inner join Route r on r.Id=t.RouteId where t.TicketDate = '2023-05-31 04:05:06.000' ;
+select * from Passenger p left join Ticket t on p.Id = t.PassengerId;
+select * from Passenger p right join Ticket t on p.Id = t.PassengerId;
+
+select p.FirstName, p.LastName, t.TicketDate, r.RouteName, vm.VehicleModel, vm.Manufacturer from
+Passenger p inner join Ticket t on p.Id = t.PassengerId 
+inner join Route r on r.Id=t.RouteId 
+inner join RouteVehicle rv on r.Id=rv.RouteId 
+inner join Vehicle v on v.Id=rv.VehicleId 
+inner join VehicleModel vm on v.VehicleModelId= vm.Id;
+
+drop table ticket;
+drop table passenger;
+drop table route;
+drop table vehicle;
+drop table vehiclemodel;
+drop table vehicleregistration;
+drop table routevehicle;
 
 
 
