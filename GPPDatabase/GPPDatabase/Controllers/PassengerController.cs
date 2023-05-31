@@ -157,7 +157,7 @@ namespace GPPDatabase.Controllers
                             cmd.Parameters.AddWithValue("FirstName", newPassenger.FirstName);
                         if (newPassenger.LastName != null)
                             cmd.Parameters.AddWithValue("LastName", newPassenger.LastName);
-                        if (newPassenger.DateOfBirth != null)
+                        if (newPassenger.DateOfBirth.HasValue)
                             cmd.Parameters.AddWithValue("DateOfBirth", newPassenger.DateOfBirth);
 
                         int numberOfAffectedRows = cmd.ExecuteNonQuery();
