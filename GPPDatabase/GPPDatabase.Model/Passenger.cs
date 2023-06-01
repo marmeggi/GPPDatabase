@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
+using System.Text;
+using System.Threading.Tasks;
+using GPPDatabase.ModelCommon;
 
-namespace GPPDatabase.Models
+namespace GPPDatabase.Model
 {
-    public class Passenger
+    public class Passenger: IPassengerModel
     {
         public Guid Id { get; set; }
         public string FirstName { get; set; }
