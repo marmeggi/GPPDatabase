@@ -41,7 +41,6 @@ namespace GPPDatabase.Controllers
                         return passenger;
                     }
                 }
-                Console.WriteLine($"Passenger with Id {id} not found.");
                 return null;
             }
         }
@@ -60,24 +59,27 @@ namespace GPPDatabase.Controllers
                     NpgsqlCommand cmd = new NpgsqlCommand("select * from Passenger; ", conn);
 
                     NpgsqlDataReader reader = cmd.ExecuteReader();
-                    while (reader.Read())
-                    {
-                        Passenger passenger = new Passenger
+                    if(reader.HasRows) 
+                    { 
+                        while (reader.Read())
                         {
-                            Id = reader.GetGuid(0),
-                            FirstName = reader.GetString(1),
-                            LastName = reader.GetString(2),
-                            DateOfBirth = reader.GetDateTime(3)
-                        };
+                            Passenger passenger = new Passenger
+                            {
+                                Id = reader.GetGuid(0),
+                                FirstName = reader.GetString(1),
+                                LastName = reader.GetString(2),
+                                DateOfBirth = reader.GetDateTime(3)
+                            };
 
-                        listOfPassengers.Add(passenger);
+                            listOfPassengers.Add(passenger);
+                        }
                     }
                 }
                 return Request.CreateResponse(HttpStatusCode.OK, listOfPassengers);
             }
             catch (Exception ex)
             {
-                return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, ex.Message); 
+                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, ex.Message); 
             }
         }
 
@@ -99,28 +101,32 @@ namespace GPPDatabase.Controllers
                 {
      
                     NpgsqlCommand cmd = new NpgsqlCommand("insert into Passenger values(@Id,@FirstName,@LastName,@DateOfBirth);", conn);
+                    if (passenger != null) 
+                    { 
+                        Guid id = Guid.NewGuid();
+                        cmd.Parameters.AddWithValue("Id", id);
+                        cmd.Parameters.AddWithValue("FirstName", passenger.FirstName);
+                        cmd.Parameters.AddWithValue("LastName", passenger.LastName);
+                        cmd.Parameters.AddWithValue("DateOfBirth", passenger.DateOfBirth);
 
-                    Guid id = Guid.NewGuid();
-                    cmd.Parameters.AddWithValue("Id", id);
-                    cmd.Parameters.AddWithValue("FirstName", passenger.FirstName);
-                    cmd.Parameters.AddWithValue("LastName", passenger.LastName);
-                    cmd.Parameters.AddWithValue("DateOfBirth", passenger.DateOfBirth);
+                        conn.Open();
 
-                    conn.Open();
+                        int numberOfAffectedRows = cmd.ExecuteNonQuery();
 
-                    int numberOfAffectedRows = cmd.ExecuteNonQuery();
-
-                    if (numberOfAffectedRows > 0)
-                    {
-                        return Request.CreateResponse(HttpStatusCode.Created,$"The number of affected rows is : {numberOfAffectedRows}");
+                        if (numberOfAffectedRows > 0)
+                        {
+                            return Request.CreateResponse(HttpStatusCode.Created,$"The number of affected rows is : {numberOfAffectedRows}");
+                        }
+                            return Request.CreateResponse(HttpStatusCode.BadRequest);
                     }
-                    return Request.CreateResponse(HttpStatusCode.BadRequest);
+                        return Request.CreateResponse(HttpStatusCode.BadRequest);
+
                 }
                 
             }
             catch(Exception ex)
             {
-                return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, ex.Message); 
+                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, ex.Message); 
             }
 
             
@@ -182,7 +188,7 @@ namespace GPPDatabase.Controllers
             }
             catch (Exception ex)
             {
-                return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, ex.Message);
+                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, ex.Message);
             }
 
         }
@@ -213,7 +219,7 @@ namespace GPPDatabase.Controllers
                 }
                 catch (Exception ex)
                 {
-                    return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
+                    return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
                 }
             }
             return Request.CreateResponse(HttpStatusCode.NotFound, $"Passenger with Id {id} not found.");
