@@ -16,7 +16,7 @@ namespace GPPDatabase.Repository
     {
         public static string connectionString = "Server=localhost;Port=5432;User Id=postgres;Password=bootcamp;Database=postgres;";
 
-        public Passenger GetById(Guid id)
+        public async Task<Passenger> GetByIdAsync(Guid id)
         {
             using (NpgsqlConnection conn = new NpgsqlConnection(connectionString))
             {
@@ -25,7 +25,7 @@ namespace GPPDatabase.Repository
 
                 conn.Open();
 
-                NpgsqlDataReader reader = cmd.ExecuteReader();
+                NpgsqlDataReader reader = await cmd.ExecuteReaderAsync();
 
                 if (reader.HasRows)
                 {
@@ -47,7 +47,7 @@ namespace GPPDatabase.Repository
 
 
         // GET: api/Passenger
-        public List<Passenger> GetAllPassengers()
+        public async Task<List<Passenger>> GetAllPassengersAsync()
         {
             List<Passenger> listOfPassengers = new List<Passenger>();
 
@@ -59,7 +59,7 @@ namespace GPPDatabase.Repository
 
                     NpgsqlCommand cmd = new NpgsqlCommand("select * from Passenger; ", conn);
 
-                    NpgsqlDataReader reader = cmd.ExecuteReader();
+                    NpgsqlDataReader reader = await cmd.ExecuteReaderAsync();
                     if (reader.HasRows)
                     {
                         while (reader.Read())
@@ -85,16 +85,16 @@ namespace GPPDatabase.Repository
         }
 
         // GET: api/Passenger/5
-        public Passenger GetPassengerById(Guid id)
+        public async Task<Passenger> GetPassengerByIdAsync(Guid id)
         {
-            Passenger passenger = GetById(id);
+            Passenger passenger = await GetByIdAsync(id);
             if (passenger == null)
                 return null;
             return passenger;
         }
 
         // POST: api/Passenger
-        public bool CreatePassenger(Passenger passenger)
+        public async Task<bool> CreatePassengerAsync(Passenger passenger)
         {
             try
             {
@@ -112,7 +112,7 @@ namespace GPPDatabase.Repository
 
                         conn.Open();
 
-                        int numberOfAffectedRows = cmd.ExecuteNonQuery();
+                        int numberOfAffectedRows = await cmd.ExecuteNonQueryAsync();
 
                         if (numberOfAffectedRows > 0)
                         {
@@ -133,11 +133,11 @@ namespace GPPDatabase.Repository
         }
 
         // PUT: api/Passenger/5
-        public Passenger UpdatePassenger(Guid id, Passenger updatedPassenger)
+        public async Task<Passenger> UpdatePassengerAsync(Guid id, Passenger updatedPassenger)
         {
             try
             {
-                Passenger currentPassenger = GetById(id);
+                Passenger currentPassenger = await GetByIdAsync(id);
 
                 if (currentPassenger != null)
                 {
@@ -175,10 +175,11 @@ namespace GPPDatabase.Repository
 
                         cmd.CommandText = sb.ToString();
 
-                        int numberOfAffectedRows = cmd.ExecuteNonQuery();
+                        int numberOfAffectedRows = await cmd.ExecuteNonQueryAsync();
                         if (numberOfAffectedRows > 0)
                         {
-                            return GetPassengerById(id);
+                            Passenger getPassengerByIdAsyncResult = await GetPassengerByIdAsync(id);
+                            return getPassengerByIdAsyncResult;
                         }
                         return null;
                     }
@@ -194,9 +195,9 @@ namespace GPPDatabase.Repository
         }
 
         // DELETE: api/Passenger/5
-        public bool DeletePassenger(Guid id)
+        public async Task<bool> DeletePassengerAsync(Guid id)
         {
-            Passenger passenger = GetById(id);
+            Passenger passenger = await GetByIdAsync(id);
             if (passenger != null)
             {
                 try
@@ -209,7 +210,7 @@ namespace GPPDatabase.Repository
 
                         conn.Open();
 
-                        int numberOfAffectedRows = cmd.ExecuteNonQuery();
+                        int numberOfAffectedRows = await cmd.ExecuteNonQueryAsync();
                         if (numberOfAffectedRows > 0)
                         {
                             return true;

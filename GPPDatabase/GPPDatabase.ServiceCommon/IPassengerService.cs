@@ -9,12 +9,12 @@ namespace GPPDatabase.ServiceCommon
 {
     public interface IPassengerService
     {
-       Passenger GetById(Guid id);
-       List<Passenger> GetAllPassengers();
-       Passenger GetPassengerById(Guid id);
-       bool CreatePassenger(Passenger passenger);
-       Passenger UpdatePassenger(Guid id, Passenger passenger);
-       bool DeletePassenger(Guid id);
+       Task<Passenger> GetByIdAsync(Guid id);
+       Task<List<Passenger>> GetAllPassengersAsync();
+       Task<Passenger> GetPassengerByIdAsync(Guid id);
+       Task<bool> CreatePassengerAsync(Passenger passenger);
+       Task<Passenger> UpdatePassengerAsync(Guid id, Passenger passenger);
+       Task<bool> DeletePassengerAsync(Guid id);
 
 
 

@@ -10,6 +10,7 @@ using System.Web.Http;
 using GPPDatabase.Service;
 using GPPDatabase.Model;
 using GPPDatabase.WebApi.Models;
+using System.Threading.Tasks;
 
 namespace GPPDatabase.Controllers
 {
@@ -39,10 +40,10 @@ namespace GPPDatabase.Controllers
 
 
         // GET: api/Passenger
-        public HttpResponseMessage Get()
+        public async Task<HttpResponseMessage> Get()
         {
             PassengerService passengerService = new PassengerService();
-            List<Passenger> listOfPassengers = passengerService.GetAllPassengers();
+            List<Passenger> listOfPassengers = await passengerService.GetAllPassengersAsync();
             List<PassengerRest> listOfMappedPassengers = MapToPassengerRestList(listOfPassengers);
             if(listOfMappedPassengers != null)
             {
@@ -53,40 +54,51 @@ namespace GPPDatabase.Controllers
         }
 
         // GET: api/Passenger/5
-        public  HttpResponseMessage Get(Guid id)
+        public async Task<HttpResponseMessage> Get(Guid id)
         {
             PassengerService passengerService = new PassengerService();
-            Passenger passenger = passengerService.GetPassengerById(id);
+            Passenger passenger = await passengerService.GetPassengerByIdAsync(id);
             if (passenger == null)
+            {
                 return Request.CreateErrorResponse(HttpStatusCode.NotFound, $"Passenger with Id {id} not found.");
+            }
             return Request.CreateResponse(HttpStatusCode.OK, passenger);
         }
 
         // POST: api/Passenger
-        public HttpResponseMessage Post([FromBody] Passenger passenger)
+        public async Task<HttpResponseMessage> Post([FromBody] Passenger passenger)
         {
             PassengerService passengerService = new PassengerService();
-            if (passengerService.CreatePassenger(passenger))
+            bool createdPassenger = await passengerService.CreatePassengerAsync(passenger);
+            if (createdPassenger)
+            {
                 return Request.CreateResponse(HttpStatusCode.OK);
+            }
             return Request.CreateResponse(HttpStatusCode.BadRequest);
         }
 
         // PUT: api/Passenger/5
-        public HttpResponseMessage Put(Guid id, [FromBody] Passenger updatedPassenger)
+        public async Task<HttpResponseMessage> Put(Guid id, [FromBody] Passenger updatedPassenger)
         {
             PassengerService passengerService = new PassengerService();
-            if (passengerService.UpdatePassenger(id, updatedPassenger) != null)
+           Passenger newPassenger = await passengerService.UpdatePassengerAsync(id, updatedPassenger);
+            if (newPassenger != null)
+            {
                 return Request.CreateResponse(HttpStatusCode.OK);
+            }
             return Request.CreateResponse(HttpStatusCode.BadRequest);
 
         }
 
         // DELETE: api/Passenger/5
-        public HttpResponseMessage Delete(Guid id)
+        public async Task<HttpResponseMessage> Delete(Guid id)
         {
             PassengerService passengerService = new PassengerService();
-            if (passengerService.DeletePassenger(id))
+            bool deletedPassenger = await passengerService.DeletePassengerAsync(id);
+            if (deletedPassenger)
+            {
                 return Request.CreateResponse(HttpStatusCode.OK);
+            }
             return Request.CreateResponse(HttpStatusCode.BadRequest);
         }
     }

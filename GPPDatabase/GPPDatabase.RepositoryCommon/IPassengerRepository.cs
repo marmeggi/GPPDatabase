@@ -9,12 +9,12 @@ namespace GPPDatabase.RepositoryCommon
 {
     public interface IPassengerRepository
     {
-        Passenger GetById(Guid id);
-        Passenger GetPassengerById(Guid id);
-        List<Passenger> GetAllPassengers();
-        bool CreatePassenger(Passenger passenger);
-        Passenger UpdatePassenger(Guid id ,Passenger passenger);
-        bool DeletePassenger(Guid id);
+        Task<Passenger> GetByIdAsync(Guid id);
+        Task<Passenger> GetPassengerByIdAsync(Guid id);
+        Task<List<Passenger>> GetAllPassengersAsync();
+        Task<bool> CreatePassengerAsync(Passenger passenger);
+        Task<Passenger> UpdatePassengerAsync(Guid id ,Passenger passenger);
+        Task<bool> DeletePassengerAsync(Guid id);
     }
 
 }

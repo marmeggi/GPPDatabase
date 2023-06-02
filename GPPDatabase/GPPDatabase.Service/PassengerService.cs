@@ -13,40 +13,40 @@ namespace GPPDatabase.Service
     {
 
 
-        public Passenger GetById(Guid id)
+        public async Task<Passenger> GetByIdAsync(Guid id)
         {
             PassengerRepository passengerRepository = new PassengerRepository();
-            return passengerRepository.GetById(id);
+            return await passengerRepository.GetByIdAsync(id);
         }
 
-        public List<Passenger> GetAllPassengers() 
+        public async Task<List<Passenger>> GetAllPassengersAsync() 
         {
             PassengerRepository passengerRepository = new PassengerRepository();
-            return passengerRepository.GetAllPassengers(); 
+            return await passengerRepository.GetAllPassengersAsync(); 
         }
 
-        public Passenger GetPassengerById(Guid id) 
+        public async Task<Passenger> GetPassengerByIdAsync(Guid id) 
         {
             PassengerRepository passengerRepository = new PassengerRepository();
-            return passengerRepository.GetPassengerById(id);
+            return await passengerRepository.GetPassengerByIdAsync(id);
         }
 
-        public bool CreatePassenger(Passenger passenger) 
+        public async Task<bool> CreatePassengerAsync(Passenger passenger) 
         {
             PassengerRepository passengerRepository = new PassengerRepository();
-            return passengerRepository.CreatePassenger(passenger);
+            return await passengerRepository.CreatePassengerAsync(passenger);
         }
 
-        public Passenger UpdatePassenger(Guid id, Passenger passenger) 
+        public async Task<Passenger> UpdatePassengerAsync(Guid id, Passenger passenger) 
         {
             PassengerRepository passengerRepository = new PassengerRepository();
-            return passengerRepository.UpdatePassenger(id, passenger);
+            return await passengerRepository.UpdatePassengerAsync(id, passenger);
         }
 
-        public bool DeletePassenger(Guid id) 
+        public async Task<bool> DeletePassengerAsync(Guid id) 
         {
             PassengerRepository passengerRepository = new PassengerRepository();
-            return passengerRepository.DeletePassenger(id);
+            return await passengerRepository.DeletePassengerAsync(id);
         }
 
 
