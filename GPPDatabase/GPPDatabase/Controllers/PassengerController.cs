@@ -29,7 +29,9 @@ namespace GPPDatabase.Controllers
                         Id = passenger.Id,
                         FirstName = passenger.FirstName,
                         LastName = passenger.LastName,
-                        DateOfBirth = passenger.DateOfBirth
+                        DateOfBirth = passenger.DateOfBirth,
+                        CityOfResidence = passenger.CityOfResidence,
+                        EmploymentStatus = passenger.EmploymentStatus
                     };
                     mappedPassengers.Add(passengerRest);
                 }

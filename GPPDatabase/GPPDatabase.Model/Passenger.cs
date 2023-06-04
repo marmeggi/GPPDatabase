@@ -13,6 +13,9 @@ namespace GPPDatabase.Model
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public DateTime? DateOfBirth { get; set; }
+        public string CityOfResidence { get; set; }
+        public string EmploymentStatus { get; set; }   // employed, unemployed, student, retired
+
 
     }
 }

@@ -12,6 +12,10 @@ namespace GPPDatabase.ModelCommon
         string FirstName { get; set; }
         string LastName { get; set; }
         DateTime? DateOfBirth { get; set; }
+        string CityOfResidence { get; set; }
+        string EmploymentStatus { get; set; }
+        
+
 
     }
 }

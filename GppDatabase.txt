@@ -1,5 +1,7 @@
 create extension if not exists "uuid-ossp";
 
+--table creation
+
 create table Passenger(
 Id uuid not null constraint PK_Passenger primary key,
 FirstName varchar(20) not null,
@@ -56,6 +58,8 @@ constraint Unique_VehicleId unique (VehicleId)
 alter table Ticket
 add constraint FK_Ticket_Passenger foreign key(PassengerId) references Passenger (Id) on delete cascade;
 
+--value insertion
+
 insert into Passenger values (gen_random_uuid(),'Ivo','Perić', '2001-12-15');
 insert into Passenger values (gen_random_uuid(),'Jozo','Marić', '1992-06-13');
 insert into Passenger values (gen_random_uuid(),'Marin','Jović', '2000-03-03');
@@ -109,6 +113,7 @@ insert into VehicleRegistration values (gen_random_uuid(),'827b2cc4-de3d-4d36-9a
 
 select * from VehicleRegistration;
 
+--demonstration of different types of joins 
 
 select p.FirstName,p.LastName, r.RouteName  from Passenger p inner join Ticket t on p.Id = t.PassengerId inner join Route r on r.Id=t.RouteId where t.TicketDate = '2023-05-31 04:05:06.000' ;
 select * from Passenger p left join Ticket t on p.Id = t.PassengerId;
@@ -120,6 +125,42 @@ inner join Route r on r.Id=t.RouteId
 inner join RouteVehicle rv on r.Id=rv.RouteId 
 inner join Vehicle v on v.Id=rv.VehicleId 
 inner join VehicleModel vm on v.VehicleModelId= vm.Id;
+
+--addition of two new properties in the passenger table
+
+alter table passenger 
+add column CityOfResidence varchar(20);
+
+alter table passenger 
+add column EmploymentStatus varchar(10);
+
+-- modifications of the existing passenger values
+
+update passenger
+set cityofresidence = 'Čepin', employmentstatus = 'Retired'
+where id = 'f2270b4c-50f8-4510-ba97-d88a0188e94e';
+
+update passenger
+set cityofresidence = 'Osijek', employmentstatus = 'Student'
+where id = 'b3bbb322-eac2-42f1-89ef-11f273cde856';
+
+update passenger
+set cityofresidence = 'Osijek', employmentstatus = 'Employed'
+where id = '2d318dcd-2247-4bfd-aec9-03990d67336d';
+
+update passenger
+set cityofresidence = 'Nemetin', employmentstatus = 'Unemployed'
+where id = '5be62abd-f2fc-4020-b4e3-9083f99f234d';
+
+-- setting the additional passenger properties to be not nullable
+
+alter table passenger alter column CityOfResidence set not null;
+alter table passenger alter column EmploymentStatus set not null;
+
+
+
+
+
 
 drop table ticket;
 drop table passenger;
