@@ -6,7 +6,9 @@ using System.Threading.Tasks;
 
 namespace GPPDatabase.Common
 {
-    public class Class1
+    public class Sorting
     {
+        public string OrderBy { get; set; } = "FirstName"; 
+        public string SortOrder { get; set; } = "asc"; //asc or desc
     }
 }

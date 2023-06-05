@@ -12,7 +12,7 @@ namespace GPPDatabase.WebApi.Models
         public string LastName { get; set; }
         public DateTime? DateOfBirth { get; set; }
         public string CityOfResidence { get; set; }
-        public string EmploymentStatus { get; set; }
+        public Guid EmploymentStatusId { get; set; }
 
 
     }

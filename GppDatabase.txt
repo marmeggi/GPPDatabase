@@ -1,5 +1,16 @@
 create extension if not exists "uuid-ossp";
 
+-- table deletion
+
+drop table ticket;
+drop table passenger;
+drop table route;
+drop table vehicle;
+drop table vehiclemodel;
+drop table vehicleregistration;
+drop table routevehicle;
+
+
 --table creation
 
 create table Passenger(
@@ -157,18 +168,58 @@ where id = '5be62abd-f2fc-4020-b4e3-9083f99f234d';
 alter table passenger alter column CityOfResidence set not null;
 alter table passenger alter column EmploymentStatus set not null;
 
+-- making a lookup table of all possible employment statuses
+create table EmploymentStatus(
+Id uuid not null constraint PK_EmploymentStatus primary key,
+Status varchar(10) not null);
+
+insert into  EmploymentStatus values (gen_random_uuid(),'Employed');
+insert into  EmploymentStatus values (gen_random_uuid(),'Unemployed');
+insert into  EmploymentStatus values (gen_random_uuid(),'Student');
+insert into  EmploymentStatus values (gen_random_uuid(),'Retired');
+
+select * from  EmploymentStatus;
+--altering the table passenger to contain a foreign key which is the id of the appropriate employment status
+
+alter table passenger
+drop column EmploymentStatus;
+
+alter table passenger 
+add column EmploymentStatus uuid,
+add constraint FK_EmploymentStatus_Id foreign key (EmploymentStatus) references EmploymentStatus(Id)
+;
 
 
+update passenger
+set  employmentstatus = '0735eb73-1591-4d6d-814f-150a01884ea5'
+where id = 'f2270b4c-50f8-4510-ba97-d88a0188e94e';
 
+update passenger
+set  employmentstatus = '20fdfe0c-c20f-4979-b9b3-39135e438b0d'
+where id = 'b3bbb322-eac2-42f1-89ef-11f273cde856';
 
+update passenger
+set  employmentstatus = 'a0d8ffb2-779a-4f85-9289-c1a81c8e8ef8'
+where id = '2d318dcd-2247-4bfd-aec9-03990d67336d';
 
-drop table ticket;
-drop table passenger;
-drop table route;
-drop table vehicle;
-drop table vehiclemodel;
-drop table vehicleregistration;
-drop table routevehicle;
+update passenger
+set  employmentstatus = '27c1b620-2beb-436d-ae41-7952d417ae1b'
+where id = '5be62abd-f2fc-4020-b4e3-9083f99f234d';
 
+-- renaming the EmploymentStatus column in the Passenger table to EmploymentStatusId
+
+alter table Passenger rename column EmploymentStatus to EmploymentStatusId;
+
+select * from passenger ;
+-- adding more values to the passenger table
+
+insert into passenger values (gen_random_uuid(), 'Duje', 'Matić', '1987-12-12', 'Tenja', 'a0d8ffb2-779a-4f85-9289-c1a81c8e8ef8' );
+insert into passenger values (gen_random_uuid(), 'Mirna', 'Ivanović', '1976-03-01', 'Osijek', 'a0d8ffb2-779a-4f85-9289-c1a81c8e8ef8' );
+insert into passenger values (gen_random_uuid(), 'Ana', 'Milovana', '1950-10-31', 'Nemetin', '0735eb73-1591-4d6d-814f-150a01884ea5' );
+insert into passenger values (gen_random_uuid(), 'Slavko', 'Pužić', '1960-05-31', 'Nemetin', '0735eb73-1591-4d6d-814f-150a01884ea5' );
+
+-- making the added columns in passenger writeable
+
+alter table passenger alter column cityofresidence drop read only;
 
 

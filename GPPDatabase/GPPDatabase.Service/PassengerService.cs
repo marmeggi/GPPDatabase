@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using GPPDatabase.ServiceCommon;
+using GPPDatabase.Common;
 
 namespace GPPDatabase.Service
 {
@@ -19,10 +20,10 @@ namespace GPPDatabase.Service
             return await passengerRepository.GetByIdAsync(id);
         }
 
-        public async Task<List<Passenger>> GetAllPassengersAsync() 
+        public async Task<PagedList<Passenger>> GetPassengersAsync(Filtering filtering, Paging paging, Sorting sorting ) 
         {
             PassengerRepository passengerRepository = new PassengerRepository();
-            return await passengerRepository.GetAllPassengersAsync(); 
+            return await passengerRepository.GetPassengersAsync(filtering, paging, sorting); 
         }
 
         public async Task<Passenger> GetPassengerByIdAsync(Guid id) 

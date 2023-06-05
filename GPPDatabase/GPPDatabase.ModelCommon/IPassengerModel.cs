@@ -13,7 +13,7 @@ namespace GPPDatabase.ModelCommon
         string LastName { get; set; }
         DateTime? DateOfBirth { get; set; }
         string CityOfResidence { get; set; }
-        string EmploymentStatus { get; set; }
+        Guid EmploymentStatusId { get; set; }
         
 
 

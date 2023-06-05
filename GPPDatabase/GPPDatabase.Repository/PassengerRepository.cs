@@ -8,13 +8,16 @@ using System.Threading.Tasks;
 using Npgsql;
 using GPPDatabase.Model;
 using GPPDatabase.RepositoryCommon;
+using GPPDatabase.Common;
+using PagedList;
 
 
 namespace GPPDatabase.Repository
 {
-    public class PassengerRepository:IPassengerRepository
+    public class PassengerRepository : IPassengerRepository
     {
         public static string connectionString = "Server=localhost;Port=5432;User Id=postgres;Password=bootcamp;Database=postgres;";
+
 
         public async Task<Passenger> GetByIdAsync(Guid id)
         {
@@ -47,6 +50,8 @@ namespace GPPDatabase.Repository
 
 
         // GET: api/Passenger
+
+        /*
         public async Task<List<Passenger>> GetAllPassengersAsync()
         {
             List<Passenger> listOfPassengers = new List<Passenger>();
@@ -81,6 +86,169 @@ namespace GPPDatabase.Repository
             catch (Exception)
             {
                 return null;
+            }
+        }
+        */
+
+        public async Task<Common.PagedList<Passenger>> GetPassengersAsync(Filtering filtering, Paging paging, Sorting sorting)
+        {
+            List<Passenger> listOfPassengers = new List<Passenger>();
+
+            List<string> allowedSortColumns = new List<string> { "firstname", "lastname", "dateofbirth", "cityofresidence" };
+
+            using (NpgsqlConnection conn = new NpgsqlConnection(connectionString))
+            {
+                StringBuilder sb = new StringBuilder();
+
+                NpgsqlCommand cmd = new NpgsqlCommand();
+
+                cmd.Connection = conn;
+
+                sb.Append("select * from passenger ");
+
+                if (filtering !=  null)
+                {
+                    sb.Append("where 1 = 1 ");
+
+                    if (filtering.SearchQuery != null)
+                    {
+                        string searchQuery = filtering.SearchQuery;
+                        sb.Append($" and ((FirstName like @SearchQuery) or (LastName like @SearchQuery) or " +
+                            $"(DateOfBirth like @SearchQuery) or (CityOfResidence like @SearchQuery)) ");
+                        cmd.Parameters.AddWithValue("@SearchQuery", "%"+filtering.SearchQuery+"%");
+                    }
+
+                    if (filtering.EmploymentStatuses != null && filtering.EmploymentStatuses.Any())
+                    {
+
+                        sb.Append($" and  EmploymentStatus in (@statusIds)");
+
+                        string statusIds = string.Join(",", filtering.EmploymentStatuses);
+
+                        sb.Append(statusIds);
+                        sb.Append(")");
+
+                        cmd.Parameters.AddWithValue("@statusIds", statusIds);
+
+                    }
+
+                    if (filtering.MinDateOfBirth != null)
+                    {
+                        sb.Append($" and (DateOfBirth >= @MinDateOfBirth) ");
+                        cmd.Parameters.AddWithValue("MinDateOfBirth", filtering.MinDateOfBirth);
+                    }
+
+                    if (filtering.MaxDateOfBirth != null)
+                    {
+                        sb.Append($" and (DateOfBirth <= @MaxDateOfBirth) ");
+                        cmd.Parameters.AddWithValue("MaxDateOfBirth", filtering.MaxDateOfBirth);
+                    }
+                }
+                
+
+                if ( allowedSortColumns.Contains(sorting.OrderBy.ToLower()))
+                {
+                    sb.Append($" order by {sorting.OrderBy} ");
+                }
+
+                if ( (sorting.SortOrder.ToLower() == "asc") || (sorting.SortOrder.ToLower() == "desc") )
+                {
+                    sb.Append($" sort order {sorting.SortOrder} ");
+                }
+
+                sb.Append(" offset (@PageNumber-1)*@PageSize rows\r\nfetch next @PageSize rows only");
+
+                cmd.Parameters.AddWithValue("PageNumber", paging.PageNumber);
+                cmd.Parameters.AddWithValue("PageSize", paging.PageSize);
+
+
+                conn.Open();
+
+                cmd.CommandText = sb.ToString();
+
+                NpgsqlDataReader reader = await cmd.ExecuteReaderAsync();
+
+                if (reader.HasRows)
+                {
+                    while (reader.Read())
+                    {
+                        Passenger passenger = new Passenger
+                        {
+                            Id = reader.GetGuid(0),
+                            FirstName = reader.GetString(1),
+                            LastName = reader.GetString(2),
+                            DateOfBirth = reader.GetDateTime(3),
+                            CityOfResidence = reader.GetString(4),
+                            EmploymentStatusId = reader.GetGuid(5)
+                        };
+
+                        listOfPassengers.Add(passenger);
+                    }
+                }
+
+                conn.Close();
+
+                NpgsqlCommand cmd2 = new NpgsqlCommand();
+
+                StringBuilder sb2 = new StringBuilder();
+
+                cmd2.Connection = conn;
+
+                    sb2.Append("select count (*) from passenger ");
+
+                    if (filtering != null)
+                    {
+                        sb2.Append("where 1 = 1 ");
+
+                        if (filtering.SearchQuery != null)
+                        {
+                            string searchQuery = filtering.SearchQuery;
+                            sb2.Append($" and ((FirstName like @SearchQuery) or (LastName like @SearchQuery) or " +
+                                $"(DateOfBirth like @SearchQuery) or (CityOfResidence like @SearchQuery)) ");
+                            cmd2.Parameters.AddWithValue("@SearchQuery", "%" + filtering.SearchQuery + "%");
+                        }
+
+                        if (filtering.EmploymentStatuses != null && filtering.EmploymentStatuses.Any())
+                        {
+
+                            sb2.Append($" and  EmploymentStatusId in (@statusIds)");
+
+                            string statusIds = string.Join(",", filtering.EmploymentStatuses);
+
+                            sb2.Append(statusIds);
+                            sb2.Append(")");
+
+                            cmd2.Parameters.AddWithValue("@statusIds", statusIds);
+
+                        }
+
+                        if (filtering.MinDateOfBirth != null)
+                        {
+                            sb2.Append($" and (DateOfBirth >= @MinDateOfBirth) ");
+                            cmd2.Parameters.AddWithValue("MinDateOfBirth", filtering.MinDateOfBirth);
+                        }
+
+                        if (filtering.MaxDateOfBirth != null)
+                        {
+                            sb2.Append($" and (DateOfBirth <= @MaxDateOfBirth) ");
+                            cmd2.Parameters.AddWithValue("MaxDateOfBirth", filtering.MaxDateOfBirth);
+                        }
+                    }
+                    conn.Open();
+
+
+
+                    cmd2.CommandText = sb2.ToString();
+
+                    NpgsqlDataReader reader2 = await cmd2.ExecuteReaderAsync();
+
+                    if (reader2.HasRows) 
+                    {
+                        int totalRowCount = reader.GetInt16(0);
+                        
+                        return new Common.PagedList<Passenger>(listOfPassengers, paging.PageNumber, paging.PageSize, totalRowCount);
+                    }
+                    return null;
             }
         }
 

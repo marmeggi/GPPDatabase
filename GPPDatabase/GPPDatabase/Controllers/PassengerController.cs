@@ -11,6 +11,7 @@ using GPPDatabase.Service;
 using GPPDatabase.Model;
 using GPPDatabase.WebApi.Models;
 using System.Threading.Tasks;
+using GPPDatabase.Common;
 
 namespace GPPDatabase.Controllers
 {
@@ -31,7 +32,7 @@ namespace GPPDatabase.Controllers
                         LastName = passenger.LastName,
                         DateOfBirth = passenger.DateOfBirth,
                         CityOfResidence = passenger.CityOfResidence,
-                        EmploymentStatus = passenger.EmploymentStatus
+                        EmploymentStatusId = passenger.EmploymentStatusId
                     };
                     mappedPassengers.Add(passengerRest);
                 }
@@ -42,7 +43,7 @@ namespace GPPDatabase.Controllers
 
 
         // GET: api/Passenger
-        public async Task<HttpResponseMessage> Get()
+        /* public async Task<HttpResponseMessage> Get()
         {
             PassengerService passengerService = new PassengerService();
             List<Passenger> listOfPassengers = await passengerService.GetAllPassengersAsync();
@@ -54,6 +55,46 @@ namespace GPPDatabase.Controllers
             return Request.CreateResponse(HttpStatusCode.BadRequest);
             
         }
+        */
+        
+
+        public async Task<HttpResponseMessage> Get(int PageSize, int PageNumber, string OrderBy, string SortOrder, string SearchQuery,
+            DateTime? MinDateOfBirth,  DateTime? MaxDateOfBirth, List<Guid> EmploymentStatuses)
+        {
+            PassengerService passengerService = new PassengerService();
+
+            Paging paging = new Paging()
+            {
+                PageSize = PageSize,
+                PageNumber = PageNumber
+            };
+
+            Sorting sorting = new Sorting()
+            {
+                OrderBy = OrderBy,
+                SortOrder = SortOrder
+            };
+
+            Filtering filtering = new Filtering()
+            {
+                 SearchQuery= SearchQuery,
+                 MinDateOfBirth= MinDateOfBirth,
+                 MaxDateOfBirth = MaxDateOfBirth,
+                 EmploymentStatuses = EmploymentStatuses
+            };
+
+            PagedList<Passenger> listOfPassengers = await passengerService.GetPassengersAsync(filtering, paging, sorting);
+
+
+            List<PassengerRest> listOfMappedPassengers = MapToPassengerRestList(listOfPassengers);
+             if (listOfMappedPassengers != null)
+             {
+                 return Request.CreateResponse(HttpStatusCode.OK, listOfMappedPassengers);
+             }
+             return Request.CreateResponse(HttpStatusCode.BadRequest);
+                     
+        }
+
 
         // GET: api/Passenger/5
         public async Task<HttpResponseMessage> Get(Guid id)

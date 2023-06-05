@@ -45,6 +45,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\GPPDatabase.Common\GPPDatabase.Common.csproj">
+      <Project>{b77e5733-ed70-4f09-9f7f-e53d788ca937}</Project>
+      <Name>GPPDatabase.Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\GPPDatabase.Model\GPPDatabase.Model.csproj">
       <Project>{c744ff3d-1018-4cbf-82b5-ccba75a70f6e}</Project>
       <Name>GPPDatabase.Model</Name>
