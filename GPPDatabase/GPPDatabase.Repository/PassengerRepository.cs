@@ -120,25 +120,14 @@ namespace GPPDatabase.Repository
 
                     if (filtering.EmploymentStatuses != null && filtering.EmploymentStatuses.Any())
                     {
-                        /*
-                        sb.Append($" and  EmploymentStatusid in (@statusIds)");
+                        
+                        sb.Append($" and EmploymentStatusId=ANY(@statusIds)");
 
                         string statusIds = Helper.JoinGuid(filtering.EmploymentStatuses);
                         
-                        cmd.Parameters.AddWithValue("@statusIds",statusIds);
-                       */
-                        sb.Append(" AND EmploymentStatusid IN (");
+                        cmd.Parameters.AddWithValue("@statusIds", filtering.EmploymentStatuses);
 
-                        List<string> statusIdParams = new List<string>();
-                        foreach (Guid statusId in filtering.EmploymentStatuses)
-                        {
-                            string param = $"@statusId{statusIdParams.Count}";
-                            statusIdParams.Add(param);
-                            cmd.Parameters.AddWithValue(param, statusId);
-                        }
-
-                        sb.Append(string.Join(",", statusIdParams));
-                        sb.Append(")");
+                      
                     }
                 }
 
@@ -220,25 +209,16 @@ namespace GPPDatabase.Repository
 
                         if (filtering.EmploymentStatuses != null && filtering.EmploymentStatuses.Any())
                         {
-                        /*
-                        sb.Append($" and  EmploymentStatusid in (@statusIds)");
 
-                        string statusIds = Helper.JoinGuid(filtering.EmploymentStatuses);
+                            sb.Append($" and EmploymentStatusId=ANY(@statusIds)");
 
-                        cmd.Parameters.AddWithValue("@statusIds", statusIds);
-                        */
-                        List<string> statusIdParams = new List<string>();
-                        foreach (Guid statusId in filtering.EmploymentStatuses)
-                        {
-                            string param = $"@statusId{statusIdParams.Count}";
-                            statusIdParams.Add(param);
-                            cmd.Parameters.AddWithValue(param, statusId);
-                        }
+                            string statusIds = Helper.JoinGuid(filtering.EmploymentStatuses);
 
-                        sb.Append(string.Join(",", statusIdParams));
-                        sb.Append(")");
+                            cmd.Parameters.AddWithValue("@statusIds", filtering.EmploymentStatuses);
 
                         }
+
+
 
                         if (filtering.MinDateOfBirth != null)
                         {
