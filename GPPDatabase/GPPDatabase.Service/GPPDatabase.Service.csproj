@@ -62,5 +62,13 @@
       <Name>GPPDatabase.ServiceCommon</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Autofac">
+      <Version>7.0.1</Version>
+    </PackageReference>
+    <PackageReference Include="Autofac.WebApi2">
+      <Version>6.1.1</Version>
+    </PackageReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

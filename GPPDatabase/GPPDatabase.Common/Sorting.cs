@@ -8,7 +8,7 @@ namespace GPPDatabase.Common
 {
     public class Sorting
     {
-        public string OrderBy { get; set; } = "FirstName"; 
-        public string SortOrder { get; set; } = "asc"; //asc or desc
+        public string OrderBy { get; set; }
+        public string SortOrder { get; set; }  //asc or desc
     }
 }

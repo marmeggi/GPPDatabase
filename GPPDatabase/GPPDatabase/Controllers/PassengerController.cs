@@ -58,29 +58,30 @@ namespace GPPDatabase.Controllers
         */
         
 
-        public async Task<HttpResponseMessage> Get(int PageSize, int PageNumber, string OrderBy, string SortOrder, string SearchQuery,
-            DateTime? MinDateOfBirth,  DateTime? MaxDateOfBirth, List<Guid> EmploymentStatuses)
+        public async Task<HttpResponseMessage> Get(int pageSize = 3, int pageNumber = 1, string orderBy = "FirstName", string sortOrder ="asc",
+            string searchQuery = null, string employmentStatuses = null, DateTime? minDateOfBirth = null, DateTime? maxDateOfBirth = null)
         {
             PassengerService passengerService = new PassengerService();
 
             Paging paging = new Paging()
             {
-                PageSize = PageSize,
-                PageNumber = PageNumber
+                PageSize = pageSize,
+                PageNumber = pageNumber
             };
 
             Sorting sorting = new Sorting()
             {
-                OrderBy = OrderBy,
-                SortOrder = SortOrder
+                OrderBy = orderBy,
+                SortOrder = sortOrder
             };
 
             Filtering filtering = new Filtering()
             {
-                 SearchQuery= SearchQuery,
-                 MinDateOfBirth= MinDateOfBirth,
-                 MaxDateOfBirth = MaxDateOfBirth,
-                 EmploymentStatuses = EmploymentStatuses
+                SearchQuery = searchQuery,
+                MinDateOfBirth = minDateOfBirth,
+                MaxDateOfBirth = maxDateOfBirth,
+                EmploymentStatuses = !string.IsNullOrEmpty(employmentStatuses) ? Helper.ToGuidList(employmentStatuses) : null
+
             };
 
             PagedList<Passenger> listOfPassengers = await passengerService.GetPassengersAsync(filtering, paging, sorting);

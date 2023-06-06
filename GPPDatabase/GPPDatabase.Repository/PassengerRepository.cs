@@ -120,31 +120,41 @@ namespace GPPDatabase.Repository
 
                     if (filtering.EmploymentStatuses != null && filtering.EmploymentStatuses.Any())
                     {
+                        /*
+                        sb.Append($" and  EmploymentStatusid in (@statusIds)");
 
-                        sb.Append($" and  EmploymentStatus in (@statusIds)");
+                        string statusIds = Helper.JoinGuid(filtering.EmploymentStatuses);
+                        
+                        cmd.Parameters.AddWithValue("@statusIds",statusIds);
+                       */
+                        sb.Append(" AND EmploymentStatusid IN (");
 
-                        string statusIds = string.Join(",", filtering.EmploymentStatuses);
+                        List<string> statusIdParams = new List<string>();
+                        foreach (Guid statusId in filtering.EmploymentStatuses)
+                        {
+                            string param = $"@statusId{statusIdParams.Count}";
+                            statusIdParams.Add(param);
+                            cmd.Parameters.AddWithValue(param, statusId);
+                        }
 
-                        sb.Append(statusIds);
+                        sb.Append(string.Join(",", statusIdParams));
                         sb.Append(")");
-
-                        cmd.Parameters.AddWithValue("@statusIds", statusIds);
-
-                    }
-
-                    if (filtering.MinDateOfBirth != null)
-                    {
-                        sb.Append($" and (DateOfBirth >= @MinDateOfBirth) ");
-                        cmd.Parameters.AddWithValue("MinDateOfBirth", filtering.MinDateOfBirth);
-                    }
-
-                    if (filtering.MaxDateOfBirth != null)
-                    {
-                        sb.Append($" and (DateOfBirth <= @MaxDateOfBirth) ");
-                        cmd.Parameters.AddWithValue("MaxDateOfBirth", filtering.MaxDateOfBirth);
                     }
                 }
+
+                if (filtering.MinDateOfBirth != null)
+                {
+                    sb.Append($" and (DateOfBirth >= @MinDateOfBirth) ");
+                    cmd.Parameters.AddWithValue("MinDateOfBirth", filtering.MinDateOfBirth);
+                }
+
+                if (filtering.MaxDateOfBirth != null)
+                {
+                    sb.Append($" and (DateOfBirth <= @MaxDateOfBirth) ");
+                    cmd.Parameters.AddWithValue("MaxDateOfBirth", filtering.MaxDateOfBirth);
+                }
                 
+ 
 
                 if ( allowedSortColumns.Contains(sorting.OrderBy.ToLower()))
                 {
@@ -153,13 +163,13 @@ namespace GPPDatabase.Repository
 
                 if ( (sorting.SortOrder.ToLower() == "asc") || (sorting.SortOrder.ToLower() == "desc") )
                 {
-                    sb.Append($" sort order {sorting.SortOrder} ");
+                    sb.Append($" {sorting.SortOrder} ");
                 }
 
-                sb.Append(" offset (@PageNumber-1)*@PageSize rows\r\nfetch next @PageSize rows only");
+                sb.Append(" offset @offset rows \r\n fetch next @PageSize rows only");
 
-                cmd.Parameters.AddWithValue("PageNumber", paging.PageNumber);
-                cmd.Parameters.AddWithValue("PageSize", paging.PageSize);
+                cmd.Parameters.AddWithValue("@offset", (paging.PageNumber-1)*paging.PageSize);
+                cmd.Parameters.AddWithValue("@PageSize", paging.PageSize);
 
 
                 conn.Open();
@@ -210,15 +220,23 @@ namespace GPPDatabase.Repository
 
                         if (filtering.EmploymentStatuses != null && filtering.EmploymentStatuses.Any())
                         {
+                        /*
+                        sb.Append($" and  EmploymentStatusid in (@statusIds)");
 
-                            sb2.Append($" and  EmploymentStatusId in (@statusIds)");
+                        string statusIds = Helper.JoinGuid(filtering.EmploymentStatuses);
 
-                            string statusIds = string.Join(",", filtering.EmploymentStatuses);
+                        cmd.Parameters.AddWithValue("@statusIds", statusIds);
+                        */
+                        List<string> statusIdParams = new List<string>();
+                        foreach (Guid statusId in filtering.EmploymentStatuses)
+                        {
+                            string param = $"@statusId{statusIdParams.Count}";
+                            statusIdParams.Add(param);
+                            cmd.Parameters.AddWithValue(param, statusId);
+                        }
 
-                            sb2.Append(statusIds);
-                            sb2.Append(")");
-
-                            cmd2.Parameters.AddWithValue("@statusIds", statusIds);
+                        sb.Append(string.Join(",", statusIdParams));
+                        sb.Append(")");
 
                         }
 
@@ -240,15 +258,13 @@ namespace GPPDatabase.Repository
 
                     cmd2.CommandText = sb2.ToString();
 
-                    NpgsqlDataReader reader2 = await cmd2.ExecuteReaderAsync();
+                    int numberOfRows= Convert.ToInt16(await cmd2.ExecuteScalarAsync());
 
-                    if (reader2.HasRows) 
-                    {
-                        int totalRowCount = reader.GetInt16(0);
-                        
-                        return new Common.PagedList<Passenger>(listOfPassengers, paging.PageNumber, paging.PageSize, totalRowCount);
-                    }
-                    return null;
+                   
+     
+                    return new Common.PagedList<Passenger>(listOfPassengers, paging.PageNumber, paging.PageSize, numberOfRows);
+                    
+                   
             }
         }
 
