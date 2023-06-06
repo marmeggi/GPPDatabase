@@ -12,12 +12,19 @@ using GPPDatabase.Model;
 using GPPDatabase.WebApi.Models;
 using System.Threading.Tasks;
 using GPPDatabase.Common;
+using GPPDatabase.ServiceCommon;
 
 namespace GPPDatabase.Controllers
 {
 
     public class PassengerController : ApiController
     {
+        public PassengerController(IPassengerService passengerService)
+        {
+            PassengerService = passengerService;
+        }
+        protected IPassengerService PassengerService { get; set; }
+
         public List<PassengerRest> MapToPassengerRestList (List<Passenger> listOfPassengers)
         {
             if (listOfPassengers.Count > 0)
@@ -61,7 +68,7 @@ namespace GPPDatabase.Controllers
         public async Task<HttpResponseMessage> Get(int pageSize = 3, int pageNumber = 1, string orderBy = "FirstName", string sortOrder ="asc",
             string searchQuery = null, string employmentStatuses = null, DateTime? minDateOfBirth = null, DateTime? maxDateOfBirth = null)
         {
-            PassengerService passengerService = new PassengerService();
+           
 
             Paging paging = new Paging()
             {
@@ -84,7 +91,7 @@ namespace GPPDatabase.Controllers
 
             };
 
-            PagedList<Passenger> listOfPassengers = await passengerService.GetPassengersAsync(filtering, paging, sorting);
+            PagedList<Passenger> listOfPassengers = await PassengerService.GetPassengersAsync(filtering, paging, sorting);
 
 
             List<PassengerRest> listOfMappedPassengers = MapToPassengerRestList(listOfPassengers);
@@ -100,8 +107,8 @@ namespace GPPDatabase.Controllers
         // GET: api/Passenger/5
         public async Task<HttpResponseMessage> Get(Guid id)
         {
-            PassengerService passengerService = new PassengerService();
-            Passenger passenger = await passengerService.GetPassengerByIdAsync(id);
+           
+            Passenger passenger = await PassengerService.GetPassengerByIdAsync(id);
             if (passenger == null)
             {
                 return Request.CreateErrorResponse(HttpStatusCode.NotFound, $"Passenger with Id {id} not found.");
@@ -112,8 +119,8 @@ namespace GPPDatabase.Controllers
         // POST: api/Passenger
         public async Task<HttpResponseMessage> Post([FromBody] Passenger passenger)
         {
-            PassengerService passengerService = new PassengerService();
-            bool createdPassenger = await passengerService.CreatePassengerAsync(passenger);
+          
+            bool createdPassenger = await PassengerService.CreatePassengerAsync(passenger);
             if (createdPassenger)
             {
                 return Request.CreateResponse(HttpStatusCode.OK);
@@ -124,8 +131,8 @@ namespace GPPDatabase.Controllers
         // PUT: api/Passenger/5
         public async Task<HttpResponseMessage> Put(Guid id, [FromBody] Passenger updatedPassenger)
         {
-            PassengerService passengerService = new PassengerService();
-           Passenger newPassenger = await passengerService.UpdatePassengerAsync(id, updatedPassenger);
+            
+           Passenger newPassenger = await PassengerService.UpdatePassengerAsync(id, updatedPassenger);
             if (newPassenger != null)
             {
                 return Request.CreateResponse(HttpStatusCode.OK);
@@ -137,8 +144,8 @@ namespace GPPDatabase.Controllers
         // DELETE: api/Passenger/5
         public async Task<HttpResponseMessage> Delete(Guid id)
         {
-            PassengerService passengerService = new PassengerService();
-            bool deletedPassenger = await passengerService.DeletePassengerAsync(id);
+          
+            bool deletedPassenger = await PassengerService.DeletePassengerAsync(id);
             if (deletedPassenger)
             {
                 return Request.CreateResponse(HttpStatusCode.OK);

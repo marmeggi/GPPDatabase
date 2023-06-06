@@ -53,6 +53,10 @@
       <Project>{c744ff3d-1018-4cbf-82b5-ccba75a70f6e}</Project>
       <Name>GPPDatabase.Model</Name>
     </ProjectReference>
+    <ProjectReference Include="..\GPPDatabase.RepositoryCommon\GPPDatabase.RepositoryCommon.csproj">
+      <Project>{da73d84c-0137-4c44-adcc-1e2493160b91}</Project>
+      <Name>GPPDatabase.RepositoryCommon</Name>
+    </ProjectReference>
     <ProjectReference Include="..\GPPDatabase.Repository\GPPDatabase.Repository.csproj">
       <Project>{164f3fa7-b389-43af-9e49-0c0bcdac178b}</Project>
       <Name>GPPDatabase.Repository</Name>
